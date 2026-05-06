@@ -1,5 +1,6 @@
 import { existsSync, readFileSync } from "node:fs";
-import { getSettingsPath } from "@mariozechner/pi-coding-agent";
+import { join } from "node:path";
+import { getAgentDir } from "@mariozechner/pi-coding-agent";
 
 export interface PiKoConfig {
   dashboard: boolean;
@@ -10,7 +11,7 @@ const DEFAULT_CONFIG: PiKoConfig = {
 };
 
 export function loadConfig(): PiKoConfig {
-  const settingsPath = getSettingsPath();
+  const settingsPath = join(getAgentDir(), "settings.json");
   if (!existsSync(settingsPath)) return { ...DEFAULT_CONFIG };
 
   try {
