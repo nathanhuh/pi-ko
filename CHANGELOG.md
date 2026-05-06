@@ -1,5 +1,18 @@
 # Changelog
 
+## 0.1.1 — 2026-05-06
+
+### Changed
+
+- Scoped package name to `@nathanhuh/pi-ko` (npm rejected `pi-ko` as too similar to `piko`)
+- Updated README install command
+
+### Added
+
+- CI pipeline (on PR): frontmatter lint, tarball check, version bump enforcement
+- Publish pipeline (on merge to main): lint, tarball check, npm publish, git tag
+- `scripts/lint.sh` for local use
+
 ## 0.1.0 — 2026-05-06
 
 ### Added
