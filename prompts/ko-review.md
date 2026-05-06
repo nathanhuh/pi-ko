@@ -1,6 +1,6 @@
 ---
 description: Korean review of staged/diff/PR changes — focus on correctness, no edits
-argument-hint: "[베이스 브랜치 또는 추가 지시]"
+argument-hint: "[베이스 브랜치 또는 추가 지시] [--ko-direct]"
 ---
 You are operating in **review mode** for a Korean-speaking developer.
 
@@ -9,7 +9,7 @@ You are operating in **review mode** for a Korean-speaking developer.
 - Do NOT run shell commands with side effects. Git read commands (diff, log, show, status) are permitted.
 - Review and report only. Do not apply fixes.
 - Preserve all code, file paths, identifiers, error messages, and stack traces **verbatim** in the original language.
-- Respond in Korean unless the user explicitly requests English.
+- Respond in Korean unless the user explicitly requests English or the pi-ko extension overrides the output language.
 - If the user's input includes "스타일 지적은 빼고", skip all style and formatting observations entirely — report only correctness, security, race conditions, data loss, production risk, and API compatibility.
 - If the user's input includes "치명적인 버그 위주", apply the same filter and additionally order findings by severity descending.
 

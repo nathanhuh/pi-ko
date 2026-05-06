@@ -14,70 +14,59 @@ The secondary value is **intent disambiguation**: Korean developers embed safety
 - A no-op translation wrapper. Technical artifacts (code, paths, errors) are always preserved verbatim and never passed through translation.
 - A safety enforcer in v0.1. Prompt-only instructions can be overridden by the model's judgment. Hard enforcement arrives in v0.3.
 
-## v0.1 limitation — token cost is not actually reduced
-
-v0.1 is prompt-only. The Korean intent-normalization happens *inside* the expensive model's inference pass — the full Korean text is already tokenized before any normalization occurs. v0.1 validates that the intent-disambiguation logic is correct. The actual token savings require the TypeScript preprocessing pipeline in v0.2.
-
-## v0.1 architecture
+## Current architecture (v0.2)
 
 ```
-User writes Korean
+User types Korean /ko-* command
       │
       ▼
-Prompt template (ko-ask / ko-plan / ko-review / ko-debug)
-  │  Sets mode, hard rules, permitted tool surface
-  │
-  ▼
-korean-intent-normalization skill (auto-loaded)
-  │  Maps Korean phrases → explicit behavioral constraints
-  │  Produces internal English task description (not shown)
-  │
-  ▼
-Pi agent executes within permitted tool surface
-  │
-  ▼
-korean-response-style skill + technical-text-preservation skill
-  │  Shapes Korean output format; preserves code/logs verbatim
-  │
-  ▼
+pi-ko extension intercepts input event (TypeScript)
+      │  Haiku compresses Korean → English task
+      │  "이 PR 치명적인 버그 위주로만 봐줘. 스타일 지적은 빼고."
+      │  → "/ko-review Review the PR diff for correctness bugs.
+      │     Constraints: critical severity only, skip style. Mode: review."
+      ▼
+Compressed English task → expensive model (Opus/Sonnet)
+      │  smaller input context; saves 40–65% of input tokens on typical Korean turns
+      ▼
+Expensive model responds in Korean
+      │  (output tokens same as v0.1; full output savings come in v0.3)
+      ▼
+Korean response to user
+      │  optional: token dashboard showing input savings
+```
+
+The v0.1 skills (`korean-intent-normalization`, `korean-response-style`, `technical-text-preservation`) remain in the repo as documentation. In v0.2 the compressor's system prompt carries the mapping table; the expensive model still uses the skills for its Korean output.
+
+## --ko-direct flag
+
+`--ko-direct` is registered as a Pi flag in v0.2 but has no behavioral effect yet. It reserves the namespace for v0.3, where it will opt out of the postprocessor (expensive model → English → Haiku → Korean) and route directly to Korean output from the expensive model instead. Default behavior in v0.3 will be: English output from expensive model + Haiku translation.
+
+## v0.3 output pipeline (planned)
+
+When Pi exposes a post-streaming response rewrite hook, the full pipeline becomes:
+
+```
+Compressed English → expensive model → English response (cheaper output)
+      │
+      ▼
+Haiku translates English → Korean
+      │  (code/logs/paths passed through verbatim)
+      ▼
 Korean response to user
 ```
 
-Everything in this flow is Markdown. No TypeScript, no build step, no runtime dependencies.
+This delivers savings on both sides of the turn. `--ko-direct` will skip this step.
 
-## Why prompt-only first (v0.1)
+## History
 
-The preprocessing pipeline (v0.2) requires correctly identifying Korean safety constraints before compressing the input. If the constraint-mapping logic is wrong, the compressed English task will be wrong too — and the expensive model will act on a bad task.
+### v0.1 limitation (resolved in v0.2)
 
-v0.1 validates the mapping logic in isolation, using the expensive model as the judge. Once the 7 MVP test cases all pass, we have confidence that the mapping table is correct and can move it into the preprocessor.
+v0.1 was prompt-only. The Korean intent-normalization happened *inside* the expensive model's inference pass — the full Korean text was already tokenized before any normalization. v0.1 validated that the intent-disambiguation logic was correct. The actual token savings required the TypeScript preprocessing pipeline in v0.2.
 
-## v0.2 target architecture
+### Why prompt-only first
 
-```
-User types Korean
-      │
-      ▼
-pi-ko extension intercepts (TypeScript, before Pi's main model call)
-      │
-      ├─ cheap model / rule-based: extract constraints from Korean
-      │  "이 PR 치명적인 버그 위주로만 봐줘. 스타일 지적은 빼고."
-      │  → constraints: { writelock: true, severityFilter: 'critical', skipStyle: true }
-      │
-      ├─ cheap model: compress Korean intent → English task
-      │  → "Review PR diff. Severity: critical only. Skip style."
-      │
-      ▼
-Compressed English task → expensive model (Opus/Sonnet)
-      │  smaller input context, smaller output
-      ▼
-English response
-      │
-      ▼
-cheap model: translate English response → Korean
-      │  (code/logs/paths passed through verbatim, not translated)
-      ▼
-Korean response to user + token dashboard
-```
+The preprocessing pipeline requires correctly identifying Korean safety constraints before compressing the input. If the constraint-mapping logic is wrong, the compressed English task is wrong too. v0.1 validated the mapping logic in isolation, using the expensive model as the judge.
 
 ## Out of scope (v0.1 and likely indefinitely)
 

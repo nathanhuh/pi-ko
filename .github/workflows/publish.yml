@@ -17,7 +17,7 @@ jobs:
 
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           registry-url: https://registry.npmjs.org
 
       - name: Frontmatter and prompt lint
@@ -29,7 +29,7 @@ jobs:
           echo "$output"
 
           unexpected=$(echo "$output" | grep "^npm notice [0-9]" | awk '{print $NF}' | \
-            grep -Ev '^(prompts/|skills/|examples/|docs/|README\.md|LICENSE|CHANGELOG\.md|package\.json)' || true)
+            grep -Ev '^(prompts/|skills/|extension/|examples/|docs/|README\.md|LICENSE|CHANGELOG\.md|package\.json|tsconfig\.json)' || true)
 
           if [[ -n "$unexpected" ]]; then
             echo "ERROR: unexpected files in tarball:" >&2
