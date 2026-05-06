@@ -1,0 +1,52 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  validate:
+    name: Validate package
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Frontmatter and prompt lint
+        run: bash scripts/lint.sh
+
+      - name: Verify tarball contents
+        run: |
+          output=$(npm pack --dry-run 2>&1)
+          echo "$output"
+
+          # Fail if unexpected top-level directories appear in the tarball
+          unexpected=$(echo "$output" | grep "^npm notice [0-9]" | awk '{print $NF}' | \
+            grep -Ev '^(prompts/|skills/|examples/|docs/|README\.md|LICENSE|CHANGELOG\.md|package\.json)' || true)
+
+          if [[ -n "$unexpected" ]]; then
+            echo "ERROR: unexpected files in tarball:" >&2
+            echo "$unexpected" >&2
+            exit 1
+          fi
+
+      - name: Version bump check
+        run: |
+          # Fetch main so we can compare package.json versions
+          git fetch origin main --depth=1
+
+          current=$(node -p "require('./package.json').version")
+          base=$(git show origin/main:package.json 2>/dev/null | node -p "JSON.parse(require('fs').readFileSync('/dev/stdin','utf8')).version" || echo "0.0.0")
+
+          echo "Base version (main): $base"
+          echo "PR version:          $current"
+
+          if [[ "$current" == "$base" ]]; then
+            echo "ERROR: package.json version ($current) is unchanged from main." \
+                 "Bump the version before merging." >&2
+            exit 1
+          fi

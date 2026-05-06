@@ -1,0 +1,25 @@
+{
+  "name": "pi-ko",
+  "version": "0.1.0",
+  "description": "Korean-first prompts and skills for Pi Coding Agent.",
+  "keywords": ["pi-package", "korean", "pi-coding-agent", "prompts", "skills"],
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nathanhuh/pi-ko.git"
+  },
+  "homepage": "https://github.com/nathanhuh/pi-ko#readme",
+  "files": [
+    "prompts/",
+    "skills/",
+    "examples/",
+    "docs/",
+    "README.md",
+    "LICENSE",
+    "CHANGELOG.md"
+  ],
+  "pi": {
+    "prompts": ["./prompts"],
+    "skills": ["./skills"]
+  }
+}

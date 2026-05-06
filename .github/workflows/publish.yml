@@ -1,0 +1,66 @@
+name: Publish
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  publish:
+    name: Publish to npm
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write  # needed to push the git tag
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          registry-url: https://registry.npmjs.org
+
+      - name: Frontmatter and prompt lint
+        run: bash scripts/lint.sh
+
+      - name: Verify tarball contents
+        run: |
+          output=$(npm pack --dry-run 2>&1)
+          echo "$output"
+
+          unexpected=$(echo "$output" | grep "^npm notice [0-9]" | awk '{print $NF}' | \
+            grep -Ev '^(prompts/|skills/|examples/|docs/|README\.md|LICENSE|CHANGELOG\.md|package\.json)' || true)
+
+          if [[ -n "$unexpected" ]]; then
+            echo "ERROR: unexpected files in tarball:" >&2
+            echo "$unexpected" >&2
+            exit 1
+          fi
+
+      - name: Check if version is already published
+        id: version_check
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+          if npm view "pi-ko@$VERSION" version &>/dev/null; then
+            echo "already_published=true" >> "$GITHUB_OUTPUT"
+            echo "Version $VERSION is already on npm — skipping publish."
+          else
+            echo "already_published=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Publish
+        if: steps.version_check.outputs.already_published == 'false'
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Tag release
+        if: steps.version_check.outputs.already_published == 'false'
+        run: |
+          VERSION=${{ steps.version_check.outputs.version }}
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git tag "v$VERSION"
+          git push origin "v$VERSION"
