@@ -4,20 +4,23 @@ Korean → compressed English → expensive model → Korean. Cheaper turns, sam
 
 Korean tokenizes 1.5–2x heavier than English. pi-ko intercepts your Korean request, compresses it to a tight English task before it hits the expensive model, and translates the response back. You write in Korean; the model sees English; you read Korean.
 
-> **v0.1 note:** The preprocessing pipeline ships in v0.2. v0.1 validates intent-disambiguation logic using prompt templates. Token savings are not yet real — see [docs/design.md](docs/design.md).
-
 ---
 
 ## Install
 
 ```bash
-# npm
-pi install npm:@nathanhuh/pi-ko
-
-# git
 pi install git:github.com/nathanhuh/pi-ko
+```
 
-# local dev
+For project-local install (only active in the current repo):
+
+```bash
+pi install -l git:github.com/nathanhuh/pi-ko
+```
+
+Local dev:
+
+```bash
 pi install -l ./pi-ko
 ```
 
@@ -42,6 +45,20 @@ pi install -l ./pi-ko
 /ko-review 이 PR 치명적인 버그 위주로만 봐줘. 스타일 지적은 빼고.
 /ko-debug 테스트 실패 원인만 분석해줘.
 ```
+
+---
+
+## Per-turn flags
+
+| Flag          | Effect                                                                  |
+|---------------|-------------------------------------------------------------------------|
+| `--ko-direct` | Reserved for v0.3 — will skip the Haiku postprocessor when wired up.   |
+
+## Token savings
+
+The extension compresses your Korean input to English before the expensive model sees it. Typical savings: 40–65% of input tokens per `/ko-*` turn.
+
+Enable the per-turn dashboard in Pi's settings: see [docs/extension.md](docs/extension.md).
 
 ---
 

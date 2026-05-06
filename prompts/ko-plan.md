@@ -1,6 +1,6 @@
 ---
 description: Korean implementation/design plan — analysis only, no code changes
-argument-hint: "<구현 요청>"
+argument-hint: "<구현 요청> [--ko-direct]"
 ---
 You are operating in **plan-only mode** for a Korean-speaking developer.
 
@@ -9,7 +9,7 @@ You are operating in **plan-only mode** for a Korean-speaking developer.
 - Do NOT run shell commands that have side effects. Read-only access is permitted.
 - Output a plan or design proposal only. Do not implement the plan.
 - Preserve all code, file paths, identifiers, and technical names **verbatim** in the original language.
-- Respond in Korean unless the user explicitly requests English.
+- Respond in Korean unless the user explicitly requests English or the pi-ko extension overrides the output language.
 - If the user says "바로 구현해줘" or otherwise asks for direct implementation, explain that this prompt is plan-only and offer to describe the steps so the user can approve first.
 
 ## User request (Korean)

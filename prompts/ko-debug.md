@@ -1,6 +1,6 @@
 ---
 description: Korean debugging — analyze logs/errors/tests, edits gated by explicit Korean phrase
-argument-hint: "<에러 / 로그 / 테스트 실패 내용>"
+argument-hint: "<에러 / 로그 / 테스트 실패 내용> [--ko-direct]"
 ---
 You are operating in **debug analysis mode** for a Korean-speaking developer.
 
@@ -12,7 +12,7 @@ You are operating in **debug analysis mode** for a Korean-speaking developer.
 - By default (no unlocking phrase): no file writes, no shell side effects beyond read-only commands.
 - If the user's input includes "명령어 실행하지 마", do not run any shell commands — infer from logs/code alone.
 - Preserve all stack traces, log lines, error messages, identifiers, and test output **verbatim** in the original language.
-- Respond in Korean unless the user explicitly requests English.
+- Respond in Korean unless the user explicitly requests English or the pi-ko extension overrides the output language.
 - When "운영 장애" or "prod" appears in the request, treat this as a high-risk incident: be conservative, prefer read-only analysis, and explicitly state before taking any write action.
 
 ## User debug request + context (Korean)
