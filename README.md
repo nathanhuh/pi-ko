@@ -11,8 +11,8 @@ Korean tokenizes 1.5–2x heavier than English. pi-ko intercepts your Korean req
 ## Install
 
 ```bash
-# npm (once published)
-pi install npm:pi-ko
+# npm
+pi install npm:@nathanhuh/pi-ko
 
 # git
 pi install git:github.com/nathanhuh/pi-ko

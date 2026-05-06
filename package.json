@@ -1,6 +1,6 @@
 {
-  "name": "pi-ko",
-  "version": "0.1.0",
+  "name": "@nathanhuh/pi-ko",
+  "version": "0.1.1",
   "description": "Korean-first prompts and skills for Pi Coding Agent.",
   "keywords": ["pi-package", "korean", "pi-coding-agent", "prompts", "skills"],
   "license": "MIT",
